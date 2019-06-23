@@ -192,8 +192,8 @@ model.compile(loss='sparse_categorical_crossentropy',optimizer=optimizer,metrics
 
 tensorboard=TensorBoard(log_dir=f'logs/{NAME}')
 
-filepath='RNN_Final-{epoch:02d}-{val_acc:.3f}'#unique file name that will include the epoch and the validation acc for that epoch
-checkpoint=ModelCheckpoint("models/{}.model".format(filepath,monitor='val_acc',verbose=1,save_best_only=True,mode='max'))#saves the best ones
+filepath='auto_RNN_Final-{epoch:02d}-{val_acc:.3f}'#unique file name that will include the epoch and the validation acc for that epoch
+checkpoint=ModelCheckpoint("auto_models/{}.model".format(filepath,monitor='val_acc',verbose=1,save_best_only=True,mode='max'))#saves the best ones
 
 
 history=model.fit(train_x,train_y,batch_size=BATCH_SIZE,epochs=EPOCHS,validation_data=(validation_x,validation_y),callbacks=[tensorboard,checkpoint])
