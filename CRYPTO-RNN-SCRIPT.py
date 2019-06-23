@@ -15,8 +15,8 @@ style.use('ggplot')
 
 SEQ_LENGTH=60 # we're using the last 60 minutes of data to make a prediction
 FUTURE_PERIOD_PREDICT=3 # every period in this data is 1 minute so we'll predict for the next 3 minutes.
-RATIO_TO_PREDICT="BTC-USD"
-EPOCHS=10
+RATIO_TO_PREDICT="BCH-USD"
+EPOCHS=20
 BATCH_SIZE=64
 NAME=f'{SEQ_LENGTH}-SEQ-{FUTURE_PERIOD_PREDICT}-PRED-{int(time.time())}'
 
@@ -138,6 +138,9 @@ optimizer=tf.keras.optimizers.Adam(lr=0.001,decay=1e-6)
 model.compile(loss='sparse_categorical_crossentropy',optimizer=optimizer,metrics=['accuracy'])
 
 tensorboard=TensorBoard(log_dir=f'logs/{NAME}')
+print('*'*10)
+print(f'{train_x.shape[1:]} is the size of the input tensor')
+print('*'*10)
 
 filepath='RNN_Final-{epoch:02d}-{val_acc:.3f}'#unique file name that will include the epoch and the validation acc for that epoch
 checkpoint=ModelCheckpoint("models/{}.model".format(filepath,monitor='val_acc',verbose=1,save_best_only=True,mode='max'))#saves the best ones
