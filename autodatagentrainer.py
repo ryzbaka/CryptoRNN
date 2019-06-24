@@ -10,7 +10,7 @@ import datetime as dt
 
 cryptos=['BTC-USD','LTC-USD','ETH-USD']
 
-start=dt.datetime(2017,7,31)
+start=dt.datetime(2016,7,31)
 
 stop=dt.datetime(int(dt.datetime.now().year),int(dt.datetime.now().month),int(dt.datetime.now().day))
 
@@ -76,7 +76,7 @@ style.use('ggplot')
 SEQ_LENGTH=10 # we're using the last 10 days of data to make a prediction
 FUTURE_PERIOD_PREDICT=1 # every period in this data is 1 day so we'll predict for the next 1 day.
 RATIO_TO_PREDICT="BTC-USD"
-EPOCHS=10
+EPOCHS=20
 BATCH_SIZE=64
 NAME=f'{SEQ_LENGTH}-SEQ-{FUTURE_PERIOD_PREDICT}-PRED-{int(time.time())}'
 
@@ -154,6 +154,8 @@ times=sorted(main_df.index.values)#we are taking the last 5% of data
 last_5pct=sorted(main_df.index.values)[-int(0.05*len(times))]# threshold of the last 5% of times
 
 #main_df.set_index(main_df.Date,inplace=True)
+#new
+
 validation_main_df=main_df[(main_df.index>=last_5pct)]
 main_df=main_df[(main_df.index.values<last_5pct)]
 
@@ -167,6 +169,9 @@ print(f'VALIDATION dont buys: {validation_y.count(0)}, buys:{validation_y.count(
 #############################################################################################
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~MODEL TRAINING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #############################################################################################
+print(train_x.shape[1:])
+print('*'*50)
+
 
 model=Sequential()
 model.add(LSTM(128,input_shape=(train_x.shape[1:]),return_sequences=True,activation='tanh'))
