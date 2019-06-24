@@ -8,7 +8,7 @@ from matplotlib import style
 import pandas_datareader.data as web
 import datetime as dt
 
-cryptos=['BTC-USD','LTC-USD','ETH-USD']
+cryptos=['BTC-USD','LTC-USD','ETH-USD','USD']
 
 start=dt.datetime(2016,7,31)
 
@@ -26,6 +26,14 @@ print(data.keys())
 for key,value in data.items():
     print(key,':',value)
 '''
+lens=[]
+for i in data.keys():
+    lens.append(len(data[i]))
+
+minlen=min(lens)
+for i in data.keys():
+    data[i]=data[i][:minlen]
+
 oo=pd.DataFrame.from_dict(data=data)
 oo.set_index(oo['ETH-USD_date'],drop=True,inplace=True)
 oo.drop(labels=['LTC-USD_date','BTC-USD_date'],axis=1,inplace=True)
@@ -86,6 +94,7 @@ def preprocess_df(df,RATIO_TO_PREDICT):
         for col in df.columns:
                 if col!=f'{RATIO_TO_PREDICT}_target': #normalize all except for the target itself.
                         df[col]=df[col].pct_change()# we're trying to understand the percentage change of each crypto's price
+                        df.replace([np.inf, -np.inf], np.nan,inplace=True)
                         df.dropna(inplace=True)
                         df[col]=preprocessing.scale(df[col].values)
         df.dropna(inplace=True)#juuustt in case lol
@@ -138,7 +147,7 @@ pd.set_option('display.max_colwidth',-1)
 
 base_df=pd.read_csv(datafile)
 
-main_df=base_df.drop(labels=['BTC-USD_100pma','LTC-USD_100pma','ETH-USD_date','ETH-USD_100pma'],axis=1)
+main_df=base_df.drop(labels=['BTC-USD_100pma','LTC-USD_100pma','ETH-USD_date','ETH-USD_100pma','USD_date','USD_100pma'],axis=1)
 for i in main_df.columns.values:
     if 'target' in i:
         if f'{RATIO_TO_PREDICT}' not in i:
@@ -155,7 +164,7 @@ last_5pct=sorted(main_df.index.values)[-int(0.05*len(times))]# threshold of the 
 
 #main_df.set_index(main_df.Date,inplace=True)
 #new
-
+main_df.fillna(value=0,inplace=True)
 validation_main_df=main_df[(main_df.index>=last_5pct)]
 main_df=main_df[(main_df.index.values<last_5pct)]
 
