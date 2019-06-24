@@ -77,8 +77,13 @@ model=load_model(model_filepath)
 prediction=model.predict(x)
 
 if prediction[0][1]>prediction[0][0]:
-	print('Do not buy')
+	print('############')
+	print('#Do not buy#')
+	print('############')
 else:
-	print('Buy')
+	print('#####')
+	print('#Buy#')
+	print('#####')
+
 
 print(prediction,prediction.shape)
