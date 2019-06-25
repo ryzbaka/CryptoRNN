@@ -8,7 +8,7 @@ from matplotlib import style
 import pandas_datareader.data as web
 import datetime as dt
 
-cryptos=['BTC-USD','LTC-USD','ETH-USD','USD']
+cryptos=['BTC-USD','LTC-USD','ETH-USD']
 
 start=dt.datetime(2016,7,31)
 
@@ -83,11 +83,11 @@ style.use('ggplot')
 
 SEQ_LENGTH=10 # we're using the last 10 days of data to make a prediction
 FUTURE_PERIOD_PREDICT=1 # every period in this data is 1 day so we'll predict for the next 1 day.
-RATIO_TO_PREDICT="BTC-USD"
-EPOCHS=20
+RATIO_TO_PREDICT="ETH-USD"
+EPOCHS=10
 BATCH_SIZE=64
 NAME=f'{SEQ_LENGTH}-SEQ-{FUTURE_PERIOD_PREDICT}-PRED-{int(time.time())}'
-
+random.seed(1)
 
 def preprocess_df(df,RATIO_TO_PREDICT):
         df=df.drop(f'{RATIO_TO_PREDICT}_future',axis=1)# don't leave in any feature columns during the training of the model
@@ -98,7 +98,8 @@ def preprocess_df(df,RATIO_TO_PREDICT):
                         df.dropna(inplace=True)
                         df[col]=preprocessing.scale(df[col].values)
         df.dropna(inplace=True)#juuustt in case lol
-        #print(df.head())
+        #df.values=preprocessing.StandardScaler.fit_transform(df.values)
+	#print(df.head())
         sequential_data=[]
         prev_days=deque(maxlen=SEQ_LENGTH)#wait till this prev_days actually has 60 values
         
@@ -147,7 +148,7 @@ pd.set_option('display.max_colwidth',-1)
 
 base_df=pd.read_csv(datafile)
 
-main_df=base_df.drop(labels=['BTC-USD_100pma','LTC-USD_100pma','ETH-USD_date','ETH-USD_100pma','USD_date','USD_100pma'],axis=1)
+main_df=base_df.drop(labels=['BTC-USD_100pma','LTC-USD_100pma','ETH-USD_date','ETH-USD_100pma'],axis=1)
 for i in main_df.columns.values:
     if 'target' in i:
         if f'{RATIO_TO_PREDICT}' not in i:
@@ -180,34 +181,40 @@ print(f'VALIDATION dont buys: {validation_y.count(0)}, buys:{validation_y.count(
 #############################################################################################
 print(train_x.shape[1:])
 print('*'*50)
-
-
+np.random.seed(1)
+from tensorflow.keras import layers
+	
 model=Sequential()
-model.add(LSTM(128,input_shape=(train_x.shape[1:]),return_sequences=True,activation='tanh'))
-model.add(Dropout(0.2))
+#model.add(layers.GRU(32,dropout=0.2,recurrent_dropout=0.2,input_shape=(train_x.shape[1:])))
+model.add(LSTM(128,input_shape=(train_x.shape[1:]),kernel_initializer='RandomNormal',return_sequences=True,activation='tanh'))
+#model.add(Dropout(0.2))
 model.add(BatchNormalization())
 
 model.add(LSTM(128,input_shape=(train_x.shape[1:]),return_sequences=True,activation='tanh'))
 model.add(Dropout(0.1))
 model.add(BatchNormalization())
 
-model.add(LSTM(128,input_shape=(train_x.shape[1:]),activation='tanh'))
+model.add(LSTM(128,activation='tanh'))
 model.add(Dropout(0.2))
 model.add(BatchNormalization())
 
+#model.add(Dense(32,activation='relu'))
+
 model.add(Dense(32,activation='relu'))
-model.add(Dropout(0.2))
+#model.add(Dropout(0.2))
 
 model.add(Dense(2,activation='softmax'))
 
-optimizer=tf.keras.optimizers.Adam(lr=0.001,decay=1e-6)
-
-model.compile(loss='sparse_categorical_crossentropy',optimizer=optimizer,metrics=['accuracy'])
+optimizer=tf.keras.optimizers.Adam(lr=0.0001,decay=1e-6)
+optimize=tf.keras.optimizers.Adam(lr=1e-3,decay=1e-5)
+model.compile(loss='sparse_categorical_crossentropy',optimizer=optimize,metrics=['accuracy'])
 
 tensorboard=TensorBoard(log_dir=f'logs/{NAME}')
 
-filepath='auto_RNN_Final-{epoch:02d}-{val_acc:.3f}'#unique file name that will include the epoch and the validation acc for that epoch
+filepath='ETH-USDauto_RNN_Final-{epoch:02d}-{val_acc:.3f}'#unique file name that will include the epoch and the validation acc for that epoch
 checkpoint=ModelCheckpoint("auto_models/{}.model".format(filepath,monitor='val_acc',verbose=1,save_best_only=True,mode='max'))#saves the best ones
 
 
 history=model.fit(train_x,train_y,batch_size=BATCH_SIZE,epochs=EPOCHS,validation_data=(validation_x,validation_y),callbacks=[tensorboard,checkpoint])
+#scores=model.evaluate_generator(validation_x)
+#print(model.metrics_names[1],scores[1]*100,'%')
