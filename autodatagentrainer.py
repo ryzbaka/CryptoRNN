@@ -1,12 +1,23 @@
-#############################################################################################
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DATA PROCURING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#############################################################################################
-
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import style
 import pandas_datareader.data as web
 import datetime as dt
+import time
+from collections import deque# its stack that maintains its size equal to the maxLen
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib import style
+from sklearn import preprocessing
+import random
+import tensorflow as tf
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense,Dropout,LSTM,CuDNNLSTM,BatchNormalization
+from tensorflow.keras.callbacks import TensorBoard,ModelCheckpoint
+#############################################################################################
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DATA PROCURING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#############################################################################################
 
 cryptos=['BTC-USD','LTC-USD','ETH-USD']
 
@@ -66,19 +77,6 @@ datafile=f'cryptdata{key}.csv'
 #############################################################################################
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DATA PREPROCESSING~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #############################################################################################
-import time
-from collections import deque# its stack that maintains its size equal to the maxLen
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib import style
-from sklearn import preprocessing
-import random
-import tensorflow as tf
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense,Dropout,LSTM,CuDNNLSTM,BatchNormalization
-from tensorflow.keras.callbacks import TensorBoard,ModelCheckpoint
-
 style.use('ggplot')
 
 SEQ_LENGTH=10 # we're using the last 10 days of data to make a prediction
